@@ -63,11 +63,9 @@ def get_challenge(prefix, username):
     ctx = make_sslctx_kwargs()
     try:
         fh = urlopen(url, **ctx)
-        if fh.getcode() != 200:
-            panic("Received HTTP %s:\n%s" % (fh.getcode(), str(fh.read())))
         return fh.read()
     except HTTPError as e:
-        panic("Received HTTP %s:\n%s" % (e.getcode(), str(e)))
+        panic("Received HTTP %s in get_challenge():\n%s" % (e.getcode(), str(e)))
 
 
 def notify(prefix, username, challenge, key, subject, message):
@@ -80,11 +78,11 @@ def notify(prefix, username, challenge, key, subject, message):
         "mac": mac,
     }
     try:
-        fh = urlopen(url, data=json.dumps(body), **ctx)
-        if fh.getcode() != 200:
-            panic("Received HTTP %s:\n%s" % (fh.getcode(), str(fh.read())))
+        urlopen(url, data=json.dumps(body), **ctx)
     except HTTPError as e:
-        panic("Received HTTP %s:\n%s" % (e.getcode(), str(e)))
+        if e.getcode() == 400:
+            panic("Received HTTP 400 in notify(): bad credentials?")
+        panic("Received HTTP %s in notify():\n%s" % (e.getcode(), str(e)))
 
 
 def default_config_file():
