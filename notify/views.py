@@ -5,7 +5,7 @@ from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 import email
 import json
-import datetime
+from datetime import datetime
 from django.core.mail import EmailMessage
 from django.conf import settings
 
