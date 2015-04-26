@@ -45,4 +45,4 @@ $ echo "Message content" | python notify.py This is the subject
 Warning
 -------
 
-The client explicitly ignores SSL certificates, see `make_sslctx()`.
+The client explicitly ignores SSL certificates, see `make_sslctx_kwargs()`.

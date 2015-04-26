@@ -49,17 +49,20 @@ def main():
     notify(prefix, username, challenge, key, subject, message)
 
 
-def make_sslctx():
-    ctx = ssl.SSLContext(ssl.PROTOCOL_SSLv23)
-    ctx.verify_mode = ssl.CERT_NONE
-    return ctx
+def make_sslctx_kwargs():
+    kwargs = dict()
+    if "SSLContext" in dir(ssl):
+        ctx = ssl.SSLContext(ssl.PROTOCOL_SSLv23)
+        ctx.verify_mode = ssl.CERT_NONE
+        kwargs["context"] = ctx
+    return kwargs
 
 
 def get_challenge(prefix, username):
     url = prefix + "/challenge/" + username
-    ctx = make_sslctx()
+    ctx = make_sslctx_kwargs()
     try:
-        fh = urlopen(url, context=ctx)
+        fh = urlopen(url, **ctx)
         if fh.getcode() != 200:
             panic("Received HTTP %s:\n%s" % (fh.getcode(), str(fh.read())))
         return fh.read()
@@ -69,7 +72,7 @@ def get_challenge(prefix, username):
 
 def notify(prefix, username, challenge, key, subject, message):
     url = prefix + "/" + challenge
-    ctx = make_sslctx()
+    ctx = make_sslctx_kwargs()
     mac = get_mac(subject, message, challenge, key)
     body = {
         "message": message,
@@ -77,7 +80,7 @@ def notify(prefix, username, challenge, key, subject, message):
         "mac": mac,
     }
     try:
-        fh = urlopen(url, data=json.dumps(body), context=ctx)
+        fh = urlopen(url, data=json.dumps(body), **ctx)
         if fh.getcode() != 200:
             panic("Received HTTP %s:\n%s" % (fh.getcode(), str(fh.read())))
     except HTTPError as e:
