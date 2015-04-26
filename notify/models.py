@@ -52,11 +52,19 @@ class Destination(models.Model):
         return u"%s <%s>" % (self.name, self.email)
 
 
+def create_challenge():
+    return create_key(64)
+
+
+def default_validity():
+    return datetime.now() + timedelta(minutes=1)
+
+
 class Challenge(models.Model):
     destination = models.ForeignKey(Destination)
     code = models.CharField(max_length=64, unique=True,
-                            default=lambda: create_key(64))
-    valid_until = models.DateTimeField(default=lambda: datetime.now() + timedelta(minutes=1))
+                            default=create_challenge)
+    valid_until = models.DateTimeField(default=default_validity)
 
     def __unicode__(self):
         return u"%s / %s" % (self.destination.name, self.valid_until.isoformat())
