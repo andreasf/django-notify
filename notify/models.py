@@ -29,6 +29,10 @@ def hmac_sha512(message, key):
 
 
 def get_mac(subject, message, code, key):
+    if len(code) % 2 != 0:
+        code = "0" + code
+    if len(key) % 2 != 0:
+        key = "0" + key
     mac_key = bytearray(code.decode("hex") + key.decode("hex"))
     text = subject + message
     return hmac_sha512(text.encode("utf-8"), mac_key).hexdigest()
